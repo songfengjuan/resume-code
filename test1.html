@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+  </head>
+
+  <body>
+    姓名：<span id="spanName"></span>
+    <br/>
+    <input type="text" id="inputName" />
+    <!-- 
+    <script>
+      /**
+       * vue 2.0 defineProperty
+       * 1、对原始数据克隆
+       * 2、需要分别给对象中而定的每一个属性设置监听
+       */
+      let obj = {
+        name: "",
+      };
+      let newObj = JSON.parse(JSON.stringify(obj));
+      function observe() {
+        spanName.innerText = obj.name;
+        inputName.value = obj.name;
+      }
+      Object.defineProperty(obj, "name", {
+        get() {
+          return newObj.name;
+        },
+        set(value) {
+          console.log("set", value);
+          newObj.name = value;
+          observe();
+        },
+      });
+      setTimeout(() => {
+        obj.name = "songsong";
+        console.log("test");
+      }, 1000);
+      inputName.oninput = function () {
+        obj.name = this.value;
+      };
+    </script>
+    -->
+    <script>
+        /*
+        vue 3.0 proxy
+        1、不需要克隆
+        */
+      let obj = {};
+      function observe() {
+        spanName.innerText = obj.name;
+        inputName.value = obj.name;
+      }
+      obj = new Proxy(obj, {
+        get(target, prop) {
+          console.log("A");
+          return target[prop];
+        },
+        set(target, prop, value) {
+          console.log("B");
+          target[prop] = value;
+          observe();
+        },
+      });
+      setTimeout(() => {
+        obj.name = "songsong";
+        console.log("test");
+      }, 1000);
+      inputName.oninput = function () {
+        obj.name = this.value;
+      };
+
+    </script>
+  </body>
+</html>

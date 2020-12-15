@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+  </head>
+
+  <body>
+    <!-- <div class="parent">
+            <div class="child">
+                垂直水平居中
+            </div>
+        </div>
+		<style>
+            .parent{
+                width: 500px;
+                height: 500px;
+                /* display: flex;
+                justify-content: center;
+                align-items: center; */
+                display: table-cell;
+                vertical-align: middle;
+                text-align: center;
+                background: red;
+            }
+            .child{
+                display:inline-block
+
+
+            }
+    
+        </style> -->
+    <script>
+      // 执行上下文
+      // 作为函数，在队中存储代码为（字符串）
+      // 作为对象存储键值对
+      // 在哪创建，上级作用域就是谁
+      //
+      // 闭包 内存不销毁
+      /*
+        question 
+        1、自己实现Symbol
+
+
+
+
+        */
+      var test = (function (i) {
+        // 执行完毕就会销毁，垃圾回收
+        return function () {
+          alert((i *= 2));
+        };
+      })(2);
+      test(5);
+
+      var a = 0,
+        b = 0;
+      function A(a) {
+        A = function (b) {
+          // =>a+b
+          // =>b++
+          alert(a + b++);
+        };
+        alert(a++);
+      }
+      A(1); // 字符串 1
+      A(2); // 字符串 4
+
+      /**
+       *
+       */
+      // 对象（数组）的deepClone、shallowClone
+
+      var obj = {
+        a: 100,
+        b: [10, 20, 30],
+        c: {
+          x: 10,
+        },
+        // 正则
+        d: /^\d+$/,
+        f: () => {
+          return 11;
+        },
+      };
+      // shallow clone
+      var obj2 = {};
+      for (let key in obj) {
+        if (!obj.hasOwnProperty(key)) break;
+        obj2[key] = obj[key];
+      }
+      // deep clone
+      // 粗暴方法(存在问题，值为函数时会丢失，正则只转为对象)
+      var obj3 = JSON.parse(JSON.stringify(obj));
+      console.log(obj, obj2, obj3);
+      function deepClone(obj) {
+        // 过滤掉特殊情况
+        if (obj === null) return null;
+        if (typeof obj !== "object") return obj;
+        // 正则
+        if (obj instanceof RegExp) {
+          // 创建一个新实例
+          return new RegExp(obj);
+        }
+        // 时间
+        if (obj instanceof Date) {
+          // 创建一个新实例
+          return new Date(obj);
+        }
+        // 直接创建空对象；克隆的结果和之前保持相同的所属类
+        let newObj = new obj.constructor();
+        for (key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            newObj[key] = deepClone(obj[key]);
+          }
+        }
+        console.log("newObj", newObj);
+        return newObj;
+
+      }
+
+/**
+变量提升
+执行优先级
+箭头函数不能被new
+1、手写new
+*/
+        function Foo(){  
+            getName = function (){
+                console.log(1)
+            }
+            return this;
+        }
+        Foo.getName = function(){
+            console.log(2);
+        }
+        Foo.prototype.getName = function(){
+            console.log(3)
+        }
+        var getName = function(){
+            console.log(4);
+        }
+        function getName(){
+            console.log(5)
+        }
+        Foo.getName(); // 2
+        getName(); //4
+        Foo().getName();// getName=func->1 修改全局的  1
+        getName() //1
+        // 无参数new
+        new Foo.getName(); // 先是成员访问 先 Foo.getName func->2 然后执行new ==》2
+        // 有参数new
+        new Foo().getName();// 先new Foo()创建实例 再xxx.getName  3
+        new new Foo().getName() // 1、new Foo(创建实例xxx)=>new xxx.getName 2、xxx.getName(原型上的方法)   结果3
+/**
+
+同步、异步 eventLoop
+先执行主线程--》再执行 Event Quque
+Event Queue事件队列 (微任务、宏任务)
+**/
+// 浏览器是多线程的 js执行是单线程的
+
+/**
+创建函数 async1
+创建函数 async2
+==》 "script start"
+设置定时器 （宏任务A 放在任务队列当中）
+函数执行 
+=》'async1 start'
+await async2(); 执行 async2 等待返回结果（微任务B）
+=》'async2'
+new Promise的时候会理解把EC函数执行
+=》"promise1"
+resolve()(微任务C)
+=>script end  
+主栈第一阶段完成
+=》微任务B "async1 end"
+=》微任务C ”promise2“
+=》宏任务A "setTimeout"
+
+*/
+async function async1(){
+    console.log('async1 start')
+    await async2();
+    console.log('async1 end')
+}
+async function async2(){
+    console.log('async2')
+}
+console.log('script start')
+setTimeout(function(){
+    console.log('setTimeout')
+},0)
+async1();
+new Promise(function(resolve){
+    console.log('promise1')
+    resolve()
+}).then(function(){
+    console.log('promise2')
+})
+console.log('script end');
+
+/**
+ == 相比较时
+ 对象==字符串 对象.toString()转为字符串
+ null == undefined 相等 和其他值比较就不相等了
+ NaN == NaN 不相等 剩余的转化为数字
+*/
+/**
+ toString / valueOf
+ * 
+ */
+var a= {
+    i:0,
+    toString(){
+        return ++this.i;
+    }
+}
+if( a == 1 && a==2 && a==3){
+    console.log('success')
+}
+// 下面valueOf这种形式也可以，修改原始值
+var a= {
+    i:0,
+    valueOf(){
+        return ++this.i;
+    }
+}
+if( a == 1 && a==2 && a==3){
+    console.log('success')
+}
+/**
+ ES5 的 defineProperty 数据劫持实现
+ */
+var obj={
+    name:''
+}
+Object.defineProperty(obj,'name',{
+    get(){
+        console.log('获取');
+    },
+    set(){
+        console.log('获取')
+    }
+});
+var i=0;
+Object.defineProperty(Window,a,{
+    get(){
+        //不能再次获取当前属性，形成死循环
+        return ++i
+    }
+})
+if( a == 1 && a==2 && a==3){
+    console.log('success')
+}
+/**
+ 修改数字的toString
+ * 
+ */
+var  a = [1,2,3];
+a.toString = a.shift;
+if( a == 1 && a==2 && a==3){
+    console.log('success')
+}
+
+/**
+ 通过http头来解析头部的一些标签信息
+ 
+1、创建一个tcp连接
+2、
+userAgent(用户代理)作用
+1、判断浏览器类型，采用兼容方案
+2、判断是否为移动端
+3、标识H5容器，方便H5容器特定接口
+4、伪装成本低，不要过于依赖
+
+
+头部
+
+doctype 提供浏览器html的版本信息 
+
+ Mozilla，浏览器Netscape Mozilla/1.0
+ Mozilla开发了Geoko 变成了fireFox
+
+
+ 
+ * 
+ * /
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+  </body>
+</html>
+<!--
+ css中的盒模型：   
+    标准盒子模型
+    box-sizing: content-box
+    宽高只代表content区域的宽高
+    展示宽高= 宽+padding+border
+
+    ie盒子模型（怪异盒模型）
+    box-sizing: border-box
+
+
+    flex 盒模型 
+
+    多列布局
+几大经典布局方案
+
+    圣杯布局
+    双飞翼布局
+    =》左右固定，中间自适应
+
+-->
