@@ -7,7 +7,6 @@
  * }
  */
 
-const { get } = require("core-js/fn/dict");
 
 /**
  * @param {TreeNode} root
