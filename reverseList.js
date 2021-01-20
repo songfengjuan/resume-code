@@ -107,3 +107,10 @@ function moveZeros(list){
 已知document.write('<a href="'+filterA(a)+'" onclick=" '+filterB(B) +' " >'+filterC(C)+'</a>')
 请实现filterA、filterB、filterC确保不存在安全漏洞
 */
+function filterA(){
+    
+}
+function filterC(val){
+    if(!val) return '';
+    return val.replace(/\<script\>/gim, "&lt;script&gt;").replace(/\<\/script\>/gim, "&lt;/script&gt;").replace(/\</gim, "&ギ").replace(/\>/gim, "@ギ&"); 
+}
