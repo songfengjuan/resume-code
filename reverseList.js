@@ -114,3 +114,32 @@ function filterC(val){
     if(!val) return '';
     return val.replace(/\<script\>/gim, "&lt;script&gt;").replace(/\<\/script\>/gim, "&lt;/script&gt;").replace(/\</gim, "&ギ").replace(/\>/gim, "@ギ&"); 
 }
+// 模拟react环境
+import React, {Component} from 'react';
+class input extends Component{
+    constructor(props){
+        super(props);
+        this.state ={
+            inputVal:''
+        }
+
+    }
+    handleInputChange = val =>{
+        const inputVal = val.substring(0,20);
+        this.setState({
+            inputVal
+        })
+        if(val.length>20){
+            alert('超出长度限制')
+        }
+    }
+    handleBlur = () =>{
+        alert(this.state.inputVal);
+    }
+    render() {
+        return(
+            <input placeholder="请输入内容" value={this.state.inputVal} onChange={this.handleInputChange} onBlur={this.handleBlur}></input>
+        )
+        
+    }
+}
