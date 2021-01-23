@@ -7,86 +7,84 @@ function filterInt(val) {
         return NaN;
     }
 }
-// function myParseInt(str,radix)
-function _parseInt (string, radix) {
-    if (typeof string !== "string" && typeof string !== "number") return NaN;
-    if (radix && (typeof radix !== "number" || /^[1-9]\d*\.\d*|0\.\d*[1-9]\d*$/.test(radix) || radix > 36 || radix < 2)) return NaN;
-    string = String(string)
-    var rexp = (radix == 10) ? /(-?)([0]?)([0-9]+)/ : /(-?)([0]?[Xx]?)([0-9a-fA-F]+)/,
-        a = string.match(rexp),
-        sign = a[1],
-        rawRadix = a[2],
-        rawNum = a[3],
-        result = 0,
-        strArr = rawNum.split(''),
-        len = strArr.length,
-        numArr = [];
-    if (a && !radix) {
-        if ( rawRadix.toUpperCase() === "0X") {
-            radix = 16;
-        } else if (rawRadix === "0") {
-            radix = 8;
-        } else {
-            radix = 10;
-        }
-    }
-    for (var i = 0; i < len; i++){
-        var num;
-        var charCode = strArr[i].toUpperCase().charCodeAt(0);
-        if(radix <=36 && radix >= 11) {
-            if (charCode >= 65 && charCode <= 90) {
-                num = charCode - 55;
-            } else {
-                num = charCode - 48;
+function dealParse(str, radix) {
+    const sign = str[0] === '-' ? '-' : '';
+    str = str.replace(/^(\-|\+)/, '');
+    console.log('dealParse',str);
+    let numList = [];
+    let result=0;
+    for(let i=0;i<str.length;i++){
+        let num;
+        const charCode = str[i].toUpperCase().charCodeAt(0);
+        if(radix>=11&&radix<=36){
+            if(charCode>=65&&charCode<=90){
+                num = charCode -55
+            }else{
+                num = charCode -48
             }
-        }  else {
-            num = charCode - 48;
+        }else{
+            num = charCode -48
         }
-        if (num < radix) {
-            numArr.push(num);
-        } else {
-            return NaN
-        };
+        if(num<radix){
+            numList.push(num);
+        }else{
+            if(!numList.length){
+                return NaN;
+            }else{
+                break
+            }
+          
+        }
     }
-    if(numArr.length > 0) {
-      numArr.forEach(function(item, j){
-          result += item * Math.pow(radix, numArr.length-j-1);
-      })
-    }
-    if(sign === "-"){
-      result = -result;
-    }
-    return result
+    numList.forEach((item,index)=>{
+        result +=item*Math.pow(radix,numList.length-index-1);
+    })
+    if(sign === '-') result = -result;
+    console.log('result',result)
+    return result;
+
 }
-
-// 以下例子均返回15:
-console.log(_parseInt("F", 16));
-console.log(_parseInt("17", 8));
-console.log(_parseInt("15", 10));
-console.log(_parseInt(15.99, 10));
-console.log(_parseInt("FXX123", 16));
-console.log(_parseInt("1111", 2));
-console.log(_parseInt("15*3", 10));
-console.log(_parseInt("12", 13));
-
-// 以下例子均返回 NaN:
-console.log(_parseInt("Hello", 8)); // Not a number at all
-console.log(_parseInt("546", 2));   // Digits are not valid for binary representations
-
-// 以下例子均返回 -15：
-console.log(_parseInt("-F", 16));
-console.log(_parseInt("-0F", 16));
-console.log(_parseInt("-0XF", 16));
-console.log(_parseInt(-15.1, 10));
-console.log(_parseInt(" -17", 8));
-console.log(_parseInt(" -15", 10));
-console.log(_parseInt("-1111", 2));
-console.log(_parseInt("-15e1", 10));
-console.log(_parseInt("-12", 13));
-// 下例中也全部返回 17，因为输入的 string 参数以 "0x" 开头时作为十六进制数字解释，而第二个参数假如经过 Number 函数转换后为 0 或 NaN，则将会忽略。
-console.log(_parseInt("0x11", 16));
-console.log(_parseInt("0x11", 0));
-console.log(_parseInt("0x11"));
-
-// 下面的例子返回 224
-console.log(_parseInt("0e0",16));
+function dealRadix(str,radix){
+    const reg10 = /^(\-|\+)?[0-9]+/;
+    const reg16 = /^(\-|\+)?(0X)?[0-9A-F]+/;
+    const regOther = /^(\-|\+)?[0-9A-F]+/;
+    let res;
+    let newRadix;
+    switch(radix){
+        case 10:
+        case 0:
+            res = str.match(reg10);
+            newRadix=10;
+            break;
+        case 16:  
+            res = str.match(reg16);
+            newRadix=radix;
+            break;
+        default:
+            res = str.match(regOther);
+            newRadix=radix; 
+            break;
+    }
+    if (res) {
+        str = res[0];
+        if(radix === 16){
+            str = str.replace('0X', '');
+        }
+        return dealParse(str, newRadix);
+    } else {
+        return NaN;
+    }
+}
+function myParseInt(str, radix) {
+    if (typeof str !== 'string' && typeof str !== 'number') return NaN;
+    str = String(str);
+    str = str.trim();
+    str = str.toUpperCase();
+    if (typeof radix === 'number' && Number.isInteger(radix) && (radix === 0 || (radix >= 2 && radix <= 36))) {
+       return dealRadix(str,radix)
+    } else if (typeof radix === 'undefined') {
+        return  dealRadix(str,10)
+    } else {
+        return NaN;
+    }
+}
