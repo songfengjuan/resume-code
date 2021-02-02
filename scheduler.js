@@ -2,23 +2,31 @@
 
 class Scheduler {
     constructor(){
-        super();
         this.stack=[];
         this.runStack = [];
+        this.maxCount = 2;
+        this.tempRunIndex =0;
 
     }
-    add (promise) {
-      // ...
+    // promise是一
+    add =(promise)=> {
       this.stack.push(promise);
-      
     }
-    start() {
-        this.runStack = [this.stack[0],this.stack[1]];
-        while(this.stack.length){
+    start= () => {
+       for(let i=0; i<this.maxCount;i++){
+         this.runTask();
+       }
+    }
+    runTask = ()=>{
+      if(!this.stack||!this.stack.length||this.tempRunIndex>=this.maxCount){
+        return;
+      }
+      this.tempRunIndex++;
 
-        }
-
-
+      this.stack.shift()().then(()=>{
+        this.tempRunIndex--;
+        this.runTask();
+      })
     }
   }
   const timeout = (time) => new Promise(reslove => { setTimeout(reslove, time)})
