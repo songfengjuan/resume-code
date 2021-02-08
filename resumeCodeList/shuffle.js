@@ -10,3 +10,14 @@ function getMess(arr) {
     }
     return newArr;
  }
+ function shuffle(arr){//时间复杂度O(n)
+    arr = arr.concat();
+    let temp = null;
+    let r = Math.random()*arr.length|0;
+    for(let i=0;i<arr.length;i++){
+        temp = arr[i];
+        arr[i] = arr[r];
+        arr[r] = temp;
+    }
+    return arr;
+}
